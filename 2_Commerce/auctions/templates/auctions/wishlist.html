@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+{% if user.is_authenticated %}
+    <h2>Listings in your wishlist</h2>
+    <div id="listings">
+    {% for listing in listings %}
+            <div class="listing">
+            <a class="listingHeading" href="{% url 'listing_detail' listing.id %}">{{ listing.name }}</a><br>
+            <span class="listingCategory">{{ listing.get_category_display }}</span><br>
+            
+            <img src="{% static 'auctions/' %}{{ listing.imageUrl }}" alt="Listing image" height="100px" width="100px">
+            Minimun bid: {{listing.minBid}}<br>
+
+            Description: <i>>{{ listing.description }}
+
+            <form method="POST" action="{% url 'add_remove_wishlist' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="actiontype" value="remove" />
+                <button class="btn btn-primary" type="submit"> Remove from your wishlist</button></form>
+            </div>
+        
+    {% endfor %}
+        </div>
+    {% else %}
+    Please login to see your wishlist
+    {% endif %}
+{% endblock %}

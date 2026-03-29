@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.sqlite
+*.sqlite3
+.vscode
+*.pdf
+*.zip
+*.md
+
+# Virtual environments
+.venv
+venv
+uv.lock
+pyproject.toml
+.python-version
+
+# Ignore Final Project
+Final

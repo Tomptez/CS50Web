@@ -1,0 +1,106 @@
+#header {
+    text-align: right;
+}
+
+#header a {
+    text-decoration: none;
+    color: #3D4043;
+    margin: 4px 12px;
+}
+
+#header a:hover {
+    text-decoration: underline;
+}
+
+#main {
+    margin: auto;
+    display: flex;
+    align-items: center;
+    height: 400px;
+    justify-content: center;
+}
+
+form {
+    text-align: center;
+}
+form input[type=text] {
+    display: block;
+}
+
+form #buttons {
+    display: block;
+    margin: 20px auto;
+}
+
+form input[type=text] {
+    width: 400px;
+    background-color: white;
+    border-radius: 30px;
+    padding: 12px;
+    margin: 10px auto;
+    border: 1px solid lightgray;
+}
+form input[type=text]:focus, form input[type=text]:hover {
+    outline: 0px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+}
+
+form input[type=submit] {
+    background-color: #f8f9fa;
+    font-size: 11pt;
+    color: #3D4043;
+    border-radius: 5px;
+    border: 1px solid white;
+    padding: 12px;
+    margin: 0px 8px;
+}
+
+form input[type=submit]:hover {
+    border: 1px solid lightgray;
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+}
+
+#advanced {
+    font-size: 10pt;
+    color: #3D4043;
+    text-align: left;
+}
+
+#advanced_container {
+    display: flex;
+    flex-direction: row;
+}
+
+.container_element p, .container_element input[type="text"] {
+    height: 25px;
+    margin: 17px;
+    border: 1px solid white;
+    padding: 2px 10px;
+}
+
+.container_element p {
+    padding-left: 0px;
+    margin-left: 0px;
+}
+
+#advanced input[type=text] {
+    border-radius: 0px;
+    border-color: lightgray;
+    margin-right: 8px;
+}
+
+#advanced input[type=text]:focus {
+    border-color: blue;
+    box-shadow: 1px 1px 1px rgba(0,0,0,.1);
+}
+
+#advanced input[type=submit] {
+    background-color: blue;
+    border-radius: 0px;
+    color: white;
+    border-radius: 0px;
+}
+
+#advanced #buttons {
+    text-align: right;
+}

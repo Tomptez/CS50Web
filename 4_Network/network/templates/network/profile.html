@@ -1,0 +1,111 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+<h2>{{profile_user.username}}</h2>
+Follows Count: {{profile_user.n_follows}}  Follower Count: <span id="follower_count">{{profile_user.n_followers}}</span><br>
+{% if user.is_authenticated and user != profile_user %}
+  <i>You <span id="follow_notice">{% if not is_followed %}don't {% endif %}</span>follow {{profile_user.username}} <br></i>
+  <a href="#" id="runFunction" class="btn btn-sm btn-primary mt-2">{% if is_followed %}Unfollow{% else %}Follow{% endif %}</a>
+{% endif %}
+
+{% for post in timeline %}
+<div id="post-{{ post.id }}" class="card my-3 card-post" style="width: 28rem;" data-post-id="{{ post.id }}">
+  <div class="card-body">
+    <i class="mb-2 text-muted">{{post.post_created}} by <a href="{% url 'profile' username=post.author.username %}">{{post.author.username}}</a></i>
+    <p class="card-text mt-1">{{post.text}}</p>
+    <p class="card-count"> {% if user.is_authenticated %}<a class="like-link {% if post.likedbyyou %}liked{% endif %}">♥</a>{% else %}♥{% endif %} <span class="count_number">{{post.like_count}}</span> </p>
+      {% if user == post.author %}<a class="edit-link">Edit</a>
+      <a class="save-link" style="display:none;">Save</a>
+      {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<script>
+ async function likePost(postId) {
+  try {
+    let csrf = '{{ csrf_token }}'
+    const response = await fetch("{% url 'like' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', "X-CSRFToken": csrf },
+      body: JSON.stringify({ postId: postId})
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+  async function postData() {
+  try {
+    let u_name = "{{profile_user.username|escapejs}}"
+    let csrf = '{{ csrf_token }}'
+    const response = await fetch("{% url 'follow' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', "X-CSRFToken": csrf },
+      body: JSON.stringify({ username: u_name})
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+document.getElementById("runFunction").addEventListener("click", async function(e) {
+  e.preventDefault();
+  await postData();
+  let n_followers = document.getElementById("follower_count");
+  let follow_notice = document.querySelector("#follow_notice");
+  follow_notice.textContent = e.target.textContent == "Follow" ? "": "don't ";
+  n_followers.textContent = Number(n_followers.textContent) + (e.target.textContent == "Follow" ? 1 : -1)
+  e.target.textContent = e.target.textContent == "Follow" ? "Unfollow" : "Follow";
+})
+
+ document.addEventListener("DOMContentLoaded", () => {
+    let cardposts = document.querySelectorAll(".card-post")
+    cardposts.forEach(post => {
+      let editlink = post.querySelector(".edit-link")
+      let savelink = post.querySelector(".save-link")
+      let cardtext = post.querySelector(".card-text")
+      let postId = post.getAttribute("data-post-id")
+      
+      if (editlink != null) {
+      editlink.addEventListener("click", e => {
+        cardtext.contentEditable = "true";
+        cardtext.style.border = '1px solid grey';
+        editlink.style.display = "none";
+        savelink.style.display = "inline";
+        cardtext.focus();
+      });}
+      
+      if (savelink != null) {
+      savelink.addEventListener("click", async e => {
+        await fetch("{% url 'edit' %}", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', "X-CSRFToken": "{{ csrf_token }}" },
+          body: JSON.stringify({postId: postId, text: cardtext.innerHTML})
+        })
+        cardtext.contentEditable = "false";
+        cardtext.style.border = '0px solid grey';
+        savelink.style.display = "none";
+        editlink.style.display = "inline";
+      });}
+
+      likeLink = post.querySelector(".like-link");
+      likeLink.addEventListener("click", async function(e) {
+        e.preventDefault();
+        await likePost(postId);
+        let n = this.parentElement.querySelector(".count_number")
+        n.innerHTML = this.classList.contains("liked") ? Number(n.innerHTML)-1 : Number(n.innerHTML)+1;
+        this.classList.contains("liked") ? this.classList.remove("liked") : this.classList.add("liked");
+      });
+    });
+  });
+</script>
+
+{% endblock %}

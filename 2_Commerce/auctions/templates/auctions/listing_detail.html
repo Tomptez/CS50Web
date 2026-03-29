@@ -1,0 +1,75 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="card">
+  <div class="card-body">  
+<p class="listingfield"> <h1>{{ listing.name }}</h1></p>
+<p class="listingfield"> Category: {{ listing.get_category_display }}</p>
+<p class="listingfield"> Mininum bid: {{ listing.minBid }} </p>
+
+<img src="{% static 'auctions/' %}{{ listing.imageUrl }}" alt="Listing image" height="100px" width="100px">
+<p class="listingfield"> Description: {{ listing.description }}</p>
+<p class="listingfield"> <strong>Current bid:</strong> {% if maxbid %}{{ maxbid }}€ {% if maxbid == userbid %} by you{% endif %}{% else %} <i>No bid has been made yet</i> {% endif %} </p>
+{% if listing.closed and not user.is_authenticated%}
+This auction is over. Highest bid was: {{maxbid}}€
+{% elif user.is_authenticated %}
+        {% if isinwishlist %}
+                This item is in your wishlist
+                <form method="POST" action="{% url 'add_remove_wishlist' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="actiontype" value="remove" />
+                <button class="btn btn-primary" type="submit"> Remove from your wishlist</button></form>
+        {% else %}
+        <form method="POST" action="{% url 'add_remove_wishlist' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="actiontype" value="add" />
+                <button class="btn btn-primary" type="submit"> Add to your wishlist</button></form>
+        {% endif %}
+{% if listing.closed and bid.user == user %}
+Congratulation! You have won the bidding with {{maxbid}}€
+{% elif listing.closed %}
+This auction is over. Highest bid was: {{maxbid}}€
+{% else %}
+<form action="{% url 'make_a_bid' %}" method="post">
+        {% csrf_token %}
+<input type="hidden" name="auction" value="{{listing.id}}">
+{% if listing.creator == user %}
+        <button class="btn btn-warning" type="submit">Close the bidding</button>
+{% else %}
+        <input type="number" name="bidamount" min="{% if maxbid %}{{ maxbid|add:"1" }}{% else %}{{listing.minBid}}{% endif %}" value="{% if maxbid %}{{ maxbid|add:"1"}}{% else %}{{listing.minBid}}{% endif %}" step="any" /><br>
+        <button class="btn btn-warning" type="submit">Make a bid</button>
+{% endif %}
+{% endif %}
+
+</div>
+</div>
+<br> <br>
+<div class="card">
+  <div class="card-body">
+<strong>Make a comment</strong>
+</form>
+    <form class="form" action="{% url 'postComment' %}" method="post">
+        {% csrf_token %}
+                {{ comment_form }}
+                <input type="hidden" value="{{ listing.id }}" name="listing_id"/>
+        <input class="btn btn-primary" type="submit" value="Send">
+    </form>
+
+{% endif %}
+</div>
+</div>
+
+
+<br>
+{% for comment in comments %}
+<div class="card">
+  <div class="card-body">
+<strong>{{ comment.author.username }}</strong> <i>at {{ comment.created_at }} said</i>: {{comment.text}}
+</div></div><br>
+{% endfor %}
+
+
+
+{% endblock %}

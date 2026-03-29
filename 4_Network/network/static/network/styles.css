@@ -1,0 +1,18 @@
+.like-link {
+    color: rgb(35, 35, 35);
+    text-decoration: none;
+    font-size: larger;
+}
+
+
+.like-link.liked {
+    color: rgb(255, 0, 140);
+}
+
+.like-link:hover {
+    color: rgb(97, 113, 255);
+}
+
+.form-control {
+    width: 450px;
+}

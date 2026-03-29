@@ -1,0 +1,106 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+{% if user.is_authenticated and mainpage %}
+<form action="" method="post">
+    {% csrf_token %}
+  <div>
+    <label for="post">Write something meaningful:</label>
+    <textarea id="post" name="post" class="form-control rounded-1g" required minlength="4" maxlength="340" rows="4" cols="10"></textarea>
+  </div>
+  <div>
+      <button type="submit" class="btn btn-primary mt-1">Submit</button>
+  </div>
+</form>
+{% endif %}
+
+{% if pagenumbers|length > 1 %}
+<nav class="mt-3" aria-label="post navigation">
+  <ul class="pagination">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+  {% for page_n in pagenumbers %}
+      <li class="page-item {% if page.number == page_n %}active{% endif %}"><a class="page-link" href="?page={{ page_n }}">{{ page_n }}</a></li>
+  {% endfor %}
+    {% if page.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% for post in timeline %}
+<div id="post-{{ post.id }}" class="card my-3 card-post" style="width: 28rem;" data-post-id="{{ post.id }}">
+  <div class="card-body">
+    <i class="mb-2 text-muted">{{post.post_created}} by <a href="{% url 'profile' username=post.author.username %}">{{post.author.username}}</a></i>
+    <p class="card-text mt-1">{{post.text}}</p>
+    <p class="card-count"> {% if user.is_authenticated %}<a class="like-link {% if post.likedbyyou %}liked{% endif %}">♥</a>{% else %}♥{% endif %} <span class="count_number">{{post.like_count}}</span> </p>
+      {% if user == post.author %}<a class="edit-link">Edit</a>
+      <a class="save-link" style="display:none;">Save</a>
+      {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<script type="text/javascript">
+    async function likePost(postId) {
+  try {
+    let csrf = '{{ csrf_token }}'
+    const response = await fetch("{% url 'like' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', "X-CSRFToken": csrf },
+      body: JSON.stringify({ postId: postId})
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+  document.addEventListener("DOMContentLoaded", () => {
+    let cardposts = document.querySelectorAll(".card-post")
+    cardposts.forEach(post => {
+      let editlink = post.querySelector(".edit-link")
+      let savelink = post.querySelector(".save-link")
+      let cardtext = post.querySelector(".card-text")
+      let postId = post.getAttribute("data-post-id")
+      
+      if (editlink != null) {
+      editlink.addEventListener("click", e => {
+        cardtext.contentEditable = "true";
+        cardtext.style.border = '1px solid grey';
+        editlink.style.display = "none";
+        savelink.style.display = "inline";
+        cardtext.focus();
+      });}
+      
+      if (savelink != null) {
+      savelink.addEventListener("click", async e => {
+        await fetch("{% url 'edit' %}", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', "X-CSRFToken": "{{ csrf_token }}" },
+          body: JSON.stringify({postId: postId, text: cardtext.innerHTML})
+        })
+        cardtext.contentEditable = "false";
+        cardtext.style.border = '0px solid grey';
+        savelink.style.display = "none";
+        editlink.style.display = "inline";
+      });}
+
+      likeLink = post.querySelector(".like-link");
+      console.log(likeLink)
+      likeLink.addEventListener("click", async function(e) {
+        e.preventDefault();
+        await likePost(postId);
+        let n = this.parentElement.querySelector(".count_number")
+        n.innerHTML = this.classList.contains("liked") ? Number(n.innerHTML)-1 : Number(n.innerHTML)+1;
+        this.classList.contains("liked") ? this.classList.remove("liked") : this.classList.add("liked");
+      });
+    });
+  });
+</script>
+
+{% endblock %}

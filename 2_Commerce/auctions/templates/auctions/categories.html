@@ -1,0 +1,14 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>Categories</h2>
+    <div class="">
+    {% for catKey, catVal in categories.items %}
+            <div class=category>
+            <a class="btn btn-info" style="margin-top: 5px; color: white;" href="{% url 'listings_by_categories' catKey %}">{{ catVal }}</a><br>
+            </div>
+        
+    {% endfor %}
+        </div>
+{% endblock %}

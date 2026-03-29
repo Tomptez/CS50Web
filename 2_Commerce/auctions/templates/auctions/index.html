@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+    {% if category %}Filter: Only show listing in the category {{ category }}{% endif %}
+    <div id="listings">
+    {% for listing in listings %}
+            <div class=listing>
+            <a class="listingHeading" href="{% url 'listing_detail' listing.id %}">{{ listing.name }}</a><br>
+            <span class="listingCategory">{{ listing.get_category_display }}</span><br>
+            
+            <img src="{% static 'auctions/' %}{{ listing.imageUrl }}" alt="Listing image" height="100px" width="100px">
+            {% if not listing.highest_bid %} Minimun bid: {{listing.minBid}}<br>
+            {% else %}
+            Current bid: {{listing.highest_bid}}€<br>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                {% if listing in wishlist %}This item is in your wishlist {% else %}
+                
+
+                <form method="POST" action="{% url 'add_remove_wishlist' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="actiontype" value="add" />
+                <button class="btn btn-primary" type="submit"> Add to your wishlist</button></form>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+        
+{% endblock %}

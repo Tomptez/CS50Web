@@ -1,0 +1,49 @@
+body {
+    padding: 10px;
+
+
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.listing {
+    margin: 20px;
+    padding: 8px;
+    border-width:  1px;
+    border-color: lightblue;
+    border-style: solid;
+    border-radius: 20px;
+    width: 80%;
+    padding: 30px;
+    margin-left: 0;
+}
+
+.listing img {
+    display:    block;
+}
+
+.listingHeading {
+    font-size: large;
+    font-weight: bold;
+}
+
+form li {
+    margin: 15px;
+    padding: 2px;
+   
+}
+
+li input {
+    padding: 3px;
+    border-radius: 10px;
+
+}
+
+input {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+label[for=id_text] {
+    display:block;
+}
